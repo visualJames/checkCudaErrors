@@ -1,4 +1,6 @@
 # checkCudaErrors
+# check CUresult
+CUDA Error Checking Functions: 
 English:
 Description: A header for checking errors in CUDA Driver Api.
              The function checkCudaErrors checks the result of CUresult
