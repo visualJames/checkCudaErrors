@@ -1,0 +1,5 @@
+#ignore all .o Dateien
+*.o
+
+#ignore the executable TESTcheckCudaErrors
+TESTcheckCudaErrors
