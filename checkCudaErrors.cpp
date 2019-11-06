@@ -1,6 +1,8 @@
 // Copyright 2019 André Hodapp
 #include "checkCudaErrors.hpp"
 
+namespace Unterfunktionen_checkCudaErrors {
+
   /*
   * split a string in C++
   * source: http://www.martinbroadhurst.com/how-to-split-a-string-in-c.html
@@ -381,3 +383,4 @@
     ret.append(description);
     return ret;
   }
+}

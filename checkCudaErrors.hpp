@@ -11,8 +11,9 @@
 // C++ Headers
 #include <string>
 #include <vector>
+#include <exception>
 
-
+namespace Unterfunktionen_checkCudaErrors {
 /*
 * split a string in C++
 * source: http://www.martinbroadhurst.com/how-to-split-a-string-in-c.html
@@ -33,6 +34,7 @@ std::string descriptionFkt(const std::string& desc);
 */
 std::string welcherError(CUresult& error);
 
+}
 
 // This will output the proper CUDA error strings
 // in the event that a CUDA host call returns an error
@@ -42,9 +44,35 @@ inline void __checkCudaErrors(CUresult error,
     if( CUDA_SUCCESS != error) {
         fprintf(stderr,
                 "%s \n->error occoured in file <%s> in line %i.\n",
-               welcherError(error).c_str(),
+              Unterfunktionen_checkCudaErrors::welcherError(error).c_str(),
                 file, line );
         exit(-1);
+    }
+}
+
+
+struct CUresultException : public std::exception {
+    std::string error;
+    CUresultException(std::string error){
+        this->error = error;
+    }
+    const char * what () const throw () {
+      return error.c_str();
+   }
+};
+
+// This will throw as an error the proper CUDA error strings
+// in the event that a CUDA host call returns an error
+#define checkCudaError(error)  __checkCudaError (error, __FILE__, __LINE__);
+inline void __checkCudaError(CUresult error,
+ const char *file, const int line ) {
+    if( CUDA_SUCCESS != error) {
+            std::string exception = 
+              Unterfunktionen_checkCudaErrors::welcherError(error).c_str();
+              exception = exception + "\n->occoured in file <" + file 
+              +"in line " + std::to_string(line) + "\n";
+        printf("Error wird geworfen:\n");
+        throw CUresultException(exception);
     }
 }
 
