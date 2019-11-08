@@ -33,8 +33,13 @@ void ErrorPointerThrow() {
    }
 }
 
+void giveColumnsSizeCommandConsole(){
+   printf("command_line_size=%u\n", Unterfunktionen_checkCudaErrors::askTerminalSize());
+}
+
 
 int main(void) {
     ErrorPointerThrow();
+    giveColumnsSizeCommandConsole();
     return 0;
 }

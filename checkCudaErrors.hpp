@@ -15,6 +15,11 @@
 
 namespace Unterfunktionen_checkCudaErrors {
 /*
+  * returns the number of columns of the terminal
+  */
+  unsigned int askTerminalSize();
+
+/*
 * split a string in C++
 * source: http://www.martinbroadhurst.com/how-to-split-a-string-in-c.html
 */

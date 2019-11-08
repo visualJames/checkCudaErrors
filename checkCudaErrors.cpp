@@ -3,6 +3,28 @@
 
 namespace Unterfunktionen_checkCudaErrors {
 
+
+  /*
+  * returns the number of columns of the terminal
+  */
+  unsigned int askTerminalSize(){
+    //use a file fp to save and get output of system command
+    FILE *fp;
+    char var[40];
+
+    //"tput cols" tells you the number of columns
+    fp = popen("tput cols", "r");
+    while (fgets(var, sizeof(var), fp) != NULL) 
+        {
+          printf("command line has columns size: %s\n", var);
+        }
+    pclose(fp);
+    unsigned int ret = atoi(var);
+    //system("tput cols");
+    return ret;
+  }
+
+
   /*
   * split a string in C++
   * source: http://www.martinbroadhurst.com/how-to-split-a-string-in-c.html
@@ -26,8 +48,8 @@ namespace Unterfunktionen_checkCudaErrors {
   * this function indents the lines of the descripton to make look nicer :)
   */
   std::string descriptionFkt(const std::string& desc) {
-      //size of each line
-      const unsigned int size_of_line = 42;
+      //size of each line is defined by the terminal size -24
+      const unsigned int size_of_line = askTerminalSize()-24;
 
       //split string in words
       std::vector<std::string> substrings;
