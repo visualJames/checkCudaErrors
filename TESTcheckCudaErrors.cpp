@@ -14,13 +14,6 @@
 #include "checkCudaErrors.hpp"
 
 
-// void ErrorPointer() {
-//     int nBytes = 10;
-//     CUdeviceptr d_A;
-//     checkCudaErrors(cuMemAlloc(&d_A, (unsigned int)nBytes));
-//     printf("Dieser Pointer %llu kann nicht ausgegeben", d_A);
-//     printf(" werden da vorher abbricht wegen fehlendem Device\n");
-// }
 
 void ErrorPointerThrow() {
     int nBytes = 10;
@@ -42,8 +35,6 @@ void ErrorPointerThrow() {
 
 
 int main(void) {
-   //  CUresult res = (CUresult) 1;
-   //  printf("%s\n", Unterfunktionen_checkCudaErrors::whichError(res).c_str());
     ErrorPointerThrow();
     return 0;
 }
