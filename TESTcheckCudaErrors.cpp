@@ -14,21 +14,24 @@
 #include "checkCudaErrors.hpp"
 
 
-void ErrorPointer() {
-    int nBytes = 10;
-    CUdeviceptr d_A;
-    checkCudaErrors(cuMemAlloc(&d_A, (unsigned int)nBytes));
-    printf("Dieser Pointer %llu kann nicht ausgegeben", d_A);
-    printf(" werden da vorher abbricht wegen fehlendem Device\n");
-}
+// void ErrorPointer() {
+//     int nBytes = 10;
+//     CUdeviceptr d_A;
+//     checkCudaErrors(cuMemAlloc(&d_A, (unsigned int)nBytes));
+//     printf("Dieser Pointer %llu kann nicht ausgegeben", d_A);
+//     printf(" werden da vorher abbricht wegen fehlendem Device\n");
+// }
 
 void ErrorPointerThrow() {
     int nBytes = 10;
     CUdeviceptr d_A;
     try {
-      checkCudaError(cuMemAlloc(&d_A, (unsigned int)nBytes));
-   } catch(CUresultException& e) {
-      std::cout << "MyException caught" << std::endl;
+      checkCUresultError(cuMemAlloc(&d_A, (unsigned int)nBytes));
+   } catch(CUresultException<(CUresult)1>& e) {
+      std::cout << "Wrong Exception caught" << std::endl;
+      std::cout << e.what() << std::endl;
+   } catch(CUresultException<(CUresult)3>& e) {
+      std::cout << "Correct Exception caught" << std::endl;
       std::cout << e.what() << std::endl;
    } catch(std::exception& e) {
       //Other errors
@@ -39,8 +42,8 @@ void ErrorPointerThrow() {
 
 
 int main(void) {
-    CUresult res = (CUresult) 1;
-    printf("%s\n", Unterfunktionen_checkCudaErrors::welcherError(res).c_str());
+   //  CUresult res = (CUresult) 1;
+   //  printf("%s\n", Unterfunktionen_checkCudaErrors::whichError(res).c_str());
     ErrorPointerThrow();
     return 0;
 }

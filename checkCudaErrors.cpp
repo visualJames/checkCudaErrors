@@ -67,7 +67,7 @@ namespace Unterfunktionen_checkCudaErrors {
   * the different errors are in : 
   * https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html#group__CUDA__TYPES_1gc6c391505e117393cc2558fff6bfc2e9
   */
-  std::string welcherError(CUresult& error) {
+  std::string whichError(const CUresult& error) {
     std::string ret{"Error: "};
     ret.append(std::to_string(error));
     ret.append("~");
