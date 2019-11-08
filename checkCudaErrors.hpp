@@ -69,8 +69,7 @@ inline void __checkCUresultError(const CUresult error,
       std::string exception = 
                 Unterfunktionen_checkCudaErrors::whichError(error).c_str();
                 exception = exception + "\n->occoured in file <" + file 
-                +"in line " + std::to_string(line) + "\n";
-          printf("Error wird geworfen:\n");
+                +" in line " + std::to_string(line) + "\n";
       //choose which error to throw
         switch (error)
       {
