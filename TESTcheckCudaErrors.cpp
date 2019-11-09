@@ -49,27 +49,14 @@ int main(void) {
 
 
 void printAllCUresultExceptions(){
+   printf("______ALL_EXCEPTIONS______\n");
    const char *file = __FILE__;
    const int line = __LINE__;
    std::string exception = 
                 Unterfunktionen_checkCudaErrors::whichError((CUresult)1).c_str();
                 exception = exception + "\n->occoured in file <" + file 
                 +" in line " + std::to_string(line) + "\n";
-   printf("%s\n",CUresultException<(CUresult)1>(exception).what());
-
-
-
-           exception = Unterfunktionen_checkCudaErrors::whichError((CUresult)0).c_str();
-        exception = exception+"\n->occoured in file <" + file 
-                +" in line " + std::to_string(line) + "\n";
-   printf("%s\n",CUresultException<(CUresult)0>(exception).what());
-          
-
-           exception = Unterfunktionen_checkCudaErrors::whichError((CUresult)1).c_str();
-        exception = exception+"\n->occoured in file <" + file 
-                +" in line " + std::to_string(line) + "\n";
-   printf("%s\n",CUresultException<(CUresult)1>(exception).what());
-          
+   printf("%s\n",CUresultException<(CUresult)1>(exception).what());       
 
            exception = Unterfunktionen_checkCudaErrors::whichError((CUresult)2).c_str();
         exception = exception+"\n->occoured in file <" + file 
@@ -501,5 +488,6 @@ void printAllCUresultExceptions(){
         exception = exception+"\n->occoured in file <" + file 
                 +" in line " + std::to_string(line) + "\n";
    printf("%s\n",CUresultException<(CUresult)999>(exception).what());
-          
+
+       printf("______END_ALL_EXCEPTIONS______\n");   
 }

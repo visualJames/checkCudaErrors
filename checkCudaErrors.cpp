@@ -16,7 +16,7 @@ namespace Unterfunktionen_checkCudaErrors {
     fp = popen("tput cols", "r");
     while (fgets(var, sizeof(var), fp) != NULL) 
         {
-          printf("command line has columns size: %s\n", var);
+          //printf("command line has columns size: %s\n", var);
         }
     pclose(fp);
     unsigned int ret = atoi(var);
