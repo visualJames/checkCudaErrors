@@ -73,7 +73,7 @@ namespace Unterfunktionen_checkCudaErrors {
       //put words into a string which has lines with 
       //lenght of size_of_line
       for(long unsigned int i=1;i<substrings.size();++i){
-          if(size_of_currentLine > size_of_line){
+          if(size_of_currentLine + substrings.at(i).size()> size_of_line){
               ret = ret + "\n" + indent;
               size_of_currentLine = 0;
           }
