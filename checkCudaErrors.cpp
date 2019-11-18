@@ -83,6 +83,62 @@ namespace Unterfunktionen_checkCudaErrors {
       return ret;
   }
 
+/*
+* returns the type of nvrtc error
+* the different errors are in : 
+* https://docs.nvidia.com/cuda/nvrtc/index.html#group__error_1g31e41ef222c0ea75b4c48f715b3cd9f0
+* and the program itself is in https://github.com/ptillet/isaac/blob/master/include/isaac/external/CUDA/nvrtc.h
+*/
+  std::string whichNvrtcResultError(const nvrtcResult& error) {
+    std::string ret{"Error: "};
+    ret.append(std::to_string(error));
+    ret.append("~");
+    std::string description;
+    switch (error)
+    {
+      case 0:
+        ret = "NO_Error: 0~NVRTC_SUCCESS";
+        break;
+      case 1: //NVRTC_ERROR_OUT_OF_MEMORY
+        ret = "1~NVRTC_ERROR_OUT_OF_MEMORY";
+        break;
+      case 2: //NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+        ret = "2~NVRTC_ERROR_PROGRAM_CREATION_FAILURE";
+        break;
+      case 3: //NVRTC_ERROR_INVALID_INPUT
+        ret = "3~NVRTC_ERROR_INVALID_INPUT";
+        break;
+      case 4: //NVRTC_ERROR_INVALID_PROGRAM
+        ret = "4~NVRTC_ERROR_INVALID_PROGRAM";
+        break;
+      case 5: //NVRTC_ERROR_INVALID_OPTION
+        ret = "5~NVRTC_ERROR_INVALID_OPTION";
+        break;
+      case 6: //NVRTC_ERROR_COMPILATION
+        ret = "6~NVRTC_ERROR_COMPILATION";
+        break;
+      case 7: //NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
+        ret = "7~NVRTC_ERROR_BUILTIN_OPERATION_FAILURE";
+        break;
+      case 8: //NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
+        ret = "8~NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION";
+        break;
+      case 9: //NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+        ret = "9~NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION";
+        break;
+      case 10: //NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+        ret = "10~NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID";
+        break;
+      case 11: //NVRTC_ERROR_INTERNAL_ERROR
+        ret = "11~NVRTC_ERROR_INTERNAL_ERROR";
+        break;
+    default:
+        ret.append("~error_unknown");
+        description = "''It's a trap! Abort! We never left the CPU o(╥﹏╥)o'' But seriously: I don't know what happened, because it isn't even documented by NVIDIA.";      
+        break;
+    }
+    return ret;
+  }
 
   /*
   * returns the type of error
@@ -244,10 +300,10 @@ namespace Unterfunktionen_checkCudaErrors {
         ret.append("CUDA_ERROR_INVALID_HANDLE");
         description = "This indicates that a resource handle passed to the API call was not valid. Resource handles are opaque types like CUstream and CUevent.";
         break;
-      case 401:
-        ret.append("CUDA_ERROR_ILLEGAL_STATE");
-        description = "This indicates that a resource required by the API call is not in a valid state to perform the requested operation.";
-        break;
+      // case 401:
+      //   ret.append("CUDA_ERROR_ILLEGAL_STATE");
+      //   description = "This indicates that a resource required by the API call is not in a valid state to perform the requested operation.";
+      //   break;
       case 500:
         ret.append("CUDA_ERROR_NOT_FOUND");
         description = "This indicates that a named symbol was not found. Examples of symbols are global/constant variable names, texture names, and surface names.";
@@ -340,54 +396,58 @@ namespace Unterfunktionen_checkCudaErrors {
         ret.append("CUDA_ERROR_NOT_SUPPORTED");
         description = "This error indicates that the attempted operation is not supported on the current system or device.";
         break;
-      case 802:
-        ret.append("CUDA_ERROR_SYSTEM_NOT_READY");
-        description = "This error indicates that the system is not yet ready to start any CUDA work. To continue using CUDA, verify the system configuration is in a valid state and all required driver daemons are actively running. More information about this error can be found in the system specific user guide.";
-        break;
-      case 803:
-        ret.append("CUDA_ERROR_SYSTEM_DRIVER_MISMATCH");
-        description = "This error indicates that there is a mismatch between the versions of the display driver and the CUDA driver. Refer to the compatibility documentation for supported versions.";
-        break;
-      case 804:
-        ret.append("CUDA_ERROR_COMPAT_NOT_SUPPORTED_ON_DEVICE");
-        description = "This error indicates that the system was upgraded to run with forward compatibility but the visible hardware detected by CUDA does not support this configuration. Refer to the compatibility documentation for the supported hardware matrix or ensure that only supported hardware is visible during initialization via the CUDA_VISIBLE_DEVICES environment variable.";
-        break;
-      case 900:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED");
-        description = "This error indicates that the operation is not permitted when the stream is capturing.";
-        break;
-      case 901:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_INVALIDATED");
-        description = "This error indicates that the current capture sequence on the stream has been invalidated due to a previous error.";
-        break;
-      case 902:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_MERGE");
-        description = "This error indicates that the operation would have resulted in a merge of two independent capture sequences.";
-        break;
-      case 903:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_UNMATCHED");
-        description = "This error indicates that the capture was not initiated in this stream.";
-        break;
-      case 904:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_UNJOINED");
-        description = "This error indicates that the capture sequence contains a fork that was not joined to the primary stream.";
-        break;
-      case 905:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_ISOLATION");
-        description = "This error indicates that a dependency would have been created which crosses the capture sequence boundary. Only implicit in-stream ordering dependencies are allowed to cross the boundary.";
-        break;
-      case 906:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_IMPLICIT");
-        description = "This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.";
-        break;
-      case 907:
-        ret.append("CUDA_ERROR_CAPTURED_EVENT");
-        description = "This error indicates that the operation is not permitted on an event which was last recorded in a capturing stream.";
-        break;
-      case 908:
-        ret.append("CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD");
-        description = "A stream capture sequence not initiated with the CU_STREAM_CAPTURE_MODE_RELAXED argument to cuStreamBeginCapture was passed to cuStreamEndCapture in a different thread.";
-        break;
+    /*
+    * 401, 802-804, 901-908 werden vom agamemnon Rechner nicht 
+    * erkannt
+    */
+      // case 802:
+      //   ret.append("CUDA_ERROR_SYSTEM_NOT_READY");
+      //   description = "This error indicates that the system is not yet ready to start any CUDA work. To continue using CUDA, verify the system configuration is in a valid state and all required driver daemons are actively running. More information about this error can be found in the system specific user guide.";
+      //   break;
+      // case 803:
+      //   ret.append("CUDA_ERROR_SYSTEM_DRIVER_MISMATCH");
+      //   description = "This error indicates that there is a mismatch between the versions of the display driver and the CUDA driver. Refer to the compatibility documentation for supported versions.";
+      //   break;
+      // case 804:
+      //   ret.append("CUDA_ERROR_COMPAT_NOT_SUPPORTED_ON_DEVICE");
+      //   description = "This error indicates that the system was upgraded to run with forward compatibility but the visible hardware detected by CUDA does not support this configuration. Refer to the compatibility documentation for the supported hardware matrix or ensure that only supported hardware is visible during initialization via the CUDA_VISIBLE_DEVICES environment variable.";
+      //   break;
+      // case 900:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED");
+      //   description = "This error indicates that the operation is not permitted when the stream is capturing.";
+      //   break;
+      // case 901:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_INVALIDATED");
+      //   description = "This error indicates that the current capture sequence on the stream has been invalidated due to a previous error.";
+      //   break;
+      // case 902:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_MERGE");
+      //   description = "This error indicates that the operation would have resulted in a merge of two independent capture sequences.";
+      //   break;
+      // case 903:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_UNMATCHED");
+      //   description = "This error indicates that the capture was not initiated in this stream.";
+      //   break;
+      // case 904:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_UNJOINED");
+      //   description = "This error indicates that the capture sequence contains a fork that was not joined to the primary stream.";
+      //   break;
+      // case 905:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_ISOLATION");
+      //   description = "This error indicates that a dependency would have been created which crosses the capture sequence boundary. Only implicit in-stream ordering dependencies are allowed to cross the boundary.";
+      //   break;
+      // case 906:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_IMPLICIT");
+      //   description = "This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.";
+      //   break;
+      // case 907:
+      //   ret.append("CUDA_ERROR_CAPTURED_EVENT");
+      //   description = "This error indicates that the operation is not permitted on an event which was last recorded in a capturing stream.";
+      //   break;
+      // case 908:
+      //   ret.append("CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD");
+      //   description = "A stream capture sequence not initiated with the CU_STREAM_CAPTURE_MODE_RELAXED argument to cuStreamBeginCapture was passed to cuStreamEndCapture in a different thread.";
+      //   break;
       case 999:
         ret.append("CUDA_ERROR_UNKNOWN");
         description = "This indicates that an unknown internal error has occurred.";

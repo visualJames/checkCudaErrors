@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "checkCudaErrors.hpp"
+#include <nvrtc.h>
 
 void printAllCUresultExceptions();
 
@@ -39,11 +40,37 @@ void giveColumnsSizeCommandConsole(){
    printf("command_line_size=%u\n", Unterfunktionen_checkCudaErrors::askTerminalSize());
 }
 
+void testNvrtcResult(){
+    nvrtcProgram* prog  =NULL;
+    nvrtcResult result = nvrtcDestroyProgram(prog);
+    char* r =(char*) nvrtcGetErrorString(result);
+    //handle with nvtrtcGetErrorString 
+    printf("With nvrtcGetErrorString you can print out the following string:\n%s\n", r);
+
+        printf("this is my new function, which returns a exception:\n");
+    //handle with my function
+      try {
+      checkNvrtcResultError(nvrtcDestroyProgram(prog));
+  } catch(nvrtcResultException<(nvrtcResult)1>& e) {  // NVRTC_ERROR_OUT_OF_MEMORY
+      std::cout << "Wrong Exception caught" << std::endl;
+      std::cout << e.what() << std::endl;
+  } catch(nvrtcResultException<NVRTC_ERROR_INVALID_PROGRAM>& e) {
+      std::cout << "Correct Exception caught" << std::endl;
+      std::cout << e.what() << std::endl;
+  } catch(std::exception& e) {
+      // Other errors
+      std::cout << "anderer Error\n";
+      std::cout << e.what() << std::endl;
+  }
+
+}
+
 
 int main(void) {
     ErrorPointerThrow();
     giveColumnsSizeCommandConsole();
     printAllCUresultExceptions();
+    testNvrtcResult();
     return 0;
 }
 

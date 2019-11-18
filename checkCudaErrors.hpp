@@ -7,6 +7,7 @@
 
 #include <cuda.h>
 #include <builtin_types.h>  // z.B. für dim3
+#include <nvrtc.h>
 
 // C++ Headers
 #include <string>
@@ -39,6 +40,15 @@ std::string descriptionFkt(const std::string& desc);
 */
 std::string whichError(const CUresult& error);
 
+
+/*
+* returns the type of nvrtc error
+* the different errors are in : 
+* https://docs.nvidia.com/cuda/nvrtc/index.html#group__error_1g31e41ef222c0ea75b4c48f715b3cd9f0
+* and the program itself is in https://github.com/ptillet/isaac/blob/master/include/isaac/external/CUDA/nvrtc.h
+*/
+std::string whichNvrtcResultError(const nvrtcResult& error);
+
 }
 
 /*
@@ -57,6 +67,81 @@ class CUresultException : public std::exception {
       return error.c_str();
    }
 };
+
+/*
+*Template class for nvrtcResult Exceptions
+*nvrtcResult name is the name and class_type of the exception
+*/
+template<nvrtcResult name = (nvrtcResult)0>
+class nvrtcResultException : public std::exception {
+    private:
+    std::string error;
+    public:
+    nvrtcResultException(std::string error){
+        this->error = error;
+    }
+    const char * what () const throw () {
+      return error.c_str();
+   }
+};
+// This will throw as an error the proper CUDA error strings
+// in the event that a CUDA host call returns an error
+#define checkNvrtcResultError(error)  __checkNvrtcResultError (error, __FILE__, __LINE__);
+inline void __checkNvrtcResultError(const nvrtcResult error,
+ const char *file, const int line ) {
+    if( NVRTC_SUCCESS != error) {
+       //create string for exception 
+      std::string exception = 
+                Unterfunktionen_checkCudaErrors::whichNvrtcResultError(error).c_str();
+                exception = exception + "\n->occoured in file <" + file 
+                +" in line " + std::to_string(line) + "\n";
+      //choose which error to throw
+        switch (error)
+      {
+      case 0:
+        printf("no error caught in line %i in file %s\n",line, file);
+        break;
+      case 1: //NVRTC_ERROR_OUT_OF_MEMORY
+        throw nvrtcResultException<NVRTC_ERROR_OUT_OF_MEMORY>(exception);
+        break;
+      case 2: //NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+        throw nvrtcResultException<NVRTC_ERROR_PROGRAM_CREATION_FAILURE>(exception);
+        break;
+      case 3: //NVRTC_ERROR_INVALID_INPUT
+        throw nvrtcResultException<NVRTC_ERROR_INVALID_INPUT>(exception);
+        break;
+      case 4: //NVRTC_ERROR_INVALID_PROGRAM
+        throw nvrtcResultException<NVRTC_ERROR_INVALID_PROGRAM>(exception);
+        break;
+      case 5: //NVRTC_ERROR_INVALID_OPTION
+        throw nvrtcResultException<NVRTC_ERROR_INVALID_OPTION>(exception);
+        break;
+      case 6: //NVRTC_ERROR_COMPILATION
+        throw nvrtcResultException<NVRTC_ERROR_COMPILATION>(exception);
+        break;
+      case 7: //NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
+        throw nvrtcResultException<NVRTC_ERROR_BUILTIN_OPERATION_FAILURE>(exception);
+        break;
+      case 8: //NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
+        throw nvrtcResultException<NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION>(exception);
+        break;
+      case 9: //NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+        throw nvrtcResultException<NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION>(exception);
+        break;
+      case 10: //NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+        throw nvrtcResultException<NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID>(exception);
+        break;
+      case 11: //NVRTC_ERROR_INTERNAL_ERROR
+        throw nvrtcResultException<NVRTC_ERROR_INTERNAL_ERROR>(exception);
+        break;
+      default:
+          printf("CUresult Error is unknown\n");
+          exit(-1);      
+          break;
+          
+    }
+  }
+ }
 
 
 // This will throw as an error the proper CUDA error strings
@@ -184,9 +269,9 @@ inline void __checkCUresultError(const CUresult error,
         case 400:
                   throw CUresultException<(CUresult)400>(exception);
                   break;
-        case 401:
-                  throw CUresultException<(CUresult)401>(exception);
-                  break;
+        // case 401:
+        //           throw CUresultException<(CUresult)401>(exception);
+        //           break;
         case 500:
                   throw CUresultException<(CUresult)500>(exception);
                   break;
@@ -256,42 +341,46 @@ inline void __checkCUresultError(const CUresult error,
         case 801:
                   throw CUresultException<(CUresult)801>(exception);
                   break;
-        case 802:
-                  throw CUresultException<(CUresult)802>(exception);
-                  break;
-        case 803:
-                  throw CUresultException<(CUresult)803>(exception);
-                  break;
-        case 804:
-                  throw CUresultException<(CUresult)804>(exception);
-                  break;
-        case 900:
-                  throw CUresultException<(CUresult)900>(exception);
-                  break;
-        case 901:
-                  throw CUresultException<(CUresult)901>(exception);
-                  break;
-        case 902:
-                  throw CUresultException<(CUresult)902>(exception);
-                  break;
-        case 903:
-                  throw CUresultException<(CUresult)903>(exception);
-                  break;
-        case 904:
-                  throw CUresultException<(CUresult)904>(exception);
-                  break;
-        case 905:
-                  throw CUresultException<(CUresult)905>(exception);
-                  break;
-        case 906:
-                  throw CUresultException<(CUresult)906>(exception);
-                  break;
-        case 907:
-                  throw CUresultException<(CUresult)907>(exception);
-                  break;
-        case 908:
-                  throw CUresultException<(CUresult)908>(exception);
-                  break;
+      /*
+    * 401, 802-804, 901-908 werden vom agamemnon Rechner nicht 
+    * erkannt
+    */
+        // case 802:
+        //           throw CUresultException<(CUresult)802>(exception);
+        //           break;
+        // case 803:
+        //           throw CUresultException<(CUresult)803>(exception);
+        //           break;
+        // case 804:
+        //           throw CUresultException<(CUresult)804>(exception);
+        //           break;
+        // case 900:
+        //           throw CUresultException<(CUresult)900>(exception);
+        //           break;
+        // case 901:
+        //           throw CUresultException<(CUresult)901>(exception);
+        //           break;
+        // case 902:
+        //           throw CUresultException<(CUresult)902>(exception);
+        //           break;
+        // case 903:
+        //           throw CUresultException<(CUresult)903>(exception);
+        //           break;
+        // case 904:
+        //           throw CUresultException<(CUresult)904>(exception);
+        //           break;
+        // case 905:
+        //           throw CUresultException<(CUresult)905>(exception);
+        //           break;
+        // case 906:
+        //           throw CUresultException<(CUresult)906>(exception);
+        //           break;
+        // case 907:
+        //           throw CUresultException<(CUresult)907>(exception);
+        //           break;
+        // case 908:
+        //           throw CUresultException<(CUresult)908>(exception);
+        //           break;
         case 999:
                   throw CUresultException<(CUresult)999>(exception);
                   break;
