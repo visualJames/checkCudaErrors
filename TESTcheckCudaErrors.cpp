@@ -45,11 +45,11 @@ void testNvrtcResult(){
     nvrtcResult result = nvrtcDestroyProgram(prog);
     char* r =(char*) nvrtcGetErrorString(result);
     //handle with nvtrtcGetErrorString 
-    printf("With nvrtcGetErrorString you can print out the following string:\n%s\n", r);
+    printf("With nvrtcGetErrorString you can print out the following string:\n%s\n\n", r);
 
         printf("this is my new function, which returns a exception:\n");
     //handle with my function
-      try {
+  try {
       checkNvrtcResultError(nvrtcDestroyProgram(prog));
   } catch(nvrtcResultException<(nvrtcResult)1>& e) {  // NVRTC_ERROR_OUT_OF_MEMORY
       std::cout << "Wrong Exception caught" << std::endl;
@@ -66,11 +66,20 @@ void testNvrtcResult(){
 }
 
 
+void errorWithoutCatch(){
+       // throw new CUresultException<(CUresult) 1>("hey");
+//     int nBytes = 10;
+    CUdeviceptr d_A;
+    checkCUresultError(cuMemAlloc(&d_A, (unsigned int)10));
+}
+
 int main(void) {
-    ErrorPointerThrow();
-    giveColumnsSizeCommandConsole();
-    printAllCUresultExceptions();
-    testNvrtcResult();
+
+//     ErrorPointerThrow();
+//     giveColumnsSizeCommandConsole();
+//     printAllCUresultExceptions();
+//     testNvrtcResult();
+    errorWithoutCatch();
     return 0;
 }
 
